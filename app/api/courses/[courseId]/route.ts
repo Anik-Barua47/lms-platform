@@ -11,6 +11,7 @@ export async function PATCH(
     const { courseId } = await params; // Ensure that params are awaited before using
 
     const values = await req.json();
+    console.log("Received values:", values);
 
     if (!userId) {
       return new NextResponse("Unauthorized", { status: 401 });
