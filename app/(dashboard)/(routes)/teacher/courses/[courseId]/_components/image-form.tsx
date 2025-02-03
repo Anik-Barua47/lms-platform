@@ -70,7 +70,7 @@ export const ImageForm = ({ initialData, courseId }: ImageFormProps) => {
             <ImageIcon className="h-10 w-10 text-slate-500" />
           </div>
         ) : (
-          <div className="relative aspect-video mt-2 lg:w-[500px] lg:h-[500px]">
+          <div className="relative aspect-video mt-2 ">
             <Image
               alt="Upload"
               fill

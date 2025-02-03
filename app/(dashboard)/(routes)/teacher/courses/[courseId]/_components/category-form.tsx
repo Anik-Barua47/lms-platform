@@ -115,7 +115,7 @@ export const CategoryForm = ({
                   <FormControl>
                     <Combobox
                       options={options}
-                      value={field.value || undefined} // Pass `undefined` if no value is selected
+                      value={field.value || undefined}
                       onChange={(value) => {
                         console.log("New value from Combobox:", value);
                         field.onChange(value);

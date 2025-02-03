@@ -50,7 +50,7 @@ export const Combobox = ({ options, value, onChange }: ComboboxProps) => {
                 className="text-black"
                 key={option.value}
                 onSelect={() => {
-                  console.log("onSelect triggered for:", option.value); // Log this
+                  // console.log("onSelect triggered for:", option.value); // Log this
                   onChange(option.value);
                   setOpen(false);
                 }}
