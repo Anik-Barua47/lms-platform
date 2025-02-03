@@ -31,7 +31,7 @@ export const ImageForm = ({ initialData, courseId }: ImageFormProps) => {
   const router = useRouter();
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
-    console.log("Submitting values:", values); // ✅ Check what's being sent
+    // console.log("Submitting values:", values); // ✅ Check what's being sent
     try {
       await axios.patch(`/api/courses/${courseId}`, values);
       toast.success("Course updated");
@@ -42,7 +42,7 @@ export const ImageForm = ({ initialData, courseId }: ImageFormProps) => {
     }
   };
 
-  console.log("Image URL:", initialData.imageUrl);
+  // console.log("Image URL:", initialData.imageUrl);
 
   return (
     <div className="mt-6 border bg-slate-100 rounded-md p-4 dark:bg-gray-800">
@@ -70,7 +70,7 @@ export const ImageForm = ({ initialData, courseId }: ImageFormProps) => {
             <ImageIcon className="h-10 w-10 text-slate-500" />
           </div>
         ) : (
-          <div className="relative aspect-video mt-2">
+          <div className="relative aspect-video mt-2 lg:w-[500px] lg:h-[500px]">
             <Image
               alt="Upload"
               fill
@@ -86,6 +86,7 @@ export const ImageForm = ({ initialData, courseId }: ImageFormProps) => {
             onChange={(url) => {
               if (url) {
                 onSubmit({ imageUrl: url });
+                console.log("<<<<>>>>>>>", url);
               }
             }}
           />

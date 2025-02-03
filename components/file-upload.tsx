@@ -15,7 +15,7 @@ export const FileUpload = ({ onChange, endpoint }: FileUploadProps) => {
     <UploadDropzone
       endpoint={endpoint}
       onClientUploadComplete={(res) => {
-        console.log("onClientUploadComplete res:>>>>>>>>>>", res);
+        // console.log("onClientUploadComplete res:>>>>>>>>>>", res);
         onChange(res?.[0].url, res?.[0].name);
       }}
       onUploadError={(error: Error) => {
