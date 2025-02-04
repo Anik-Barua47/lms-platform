@@ -46,10 +46,10 @@ const CourseIdPage = async ({
     },
   });
 
-  // console.log(
-  //   "<<<<<<<<< It showing the course was create by me >>>>>>>",
-  //   course
-  // );
+  console.log(
+    "<<<<<<<<< It showing the course was create by me >>>>>>>",
+    course
+  );
 
   const categories = await db.category.findMany({
     orderBy: {
