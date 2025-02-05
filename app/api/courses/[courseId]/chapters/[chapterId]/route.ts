@@ -8,9 +8,109 @@ const muxClient = new Mux({
   tokenId: process.env.MUX_TOKEN_ID!,
   tokenSecret: process.env.MUX_TOKEN_SECRET!,
 });
-// console.log("MUX_TOKEN_ID:", process.env.MUX_TOKEN_ID);
-// console.log("MUX_TOKEN_SECRET:", process.env.MUX_TOKEN_SECRET);
 
+// DELETE Handler
+export async function DELETE(
+  req: Request,
+  { params }: { params: { courseId: string; chapterId: string } }
+) {
+  try {
+    const { userId } = await auth();
+    if (!userId) {
+      return new NextResponse("Unauthorized", { status: 401 });
+    }
+
+    // console.log("Authenticated User ID:", userId);
+
+    const ownCourse = await db.course.findUnique({
+      where: {
+        id: params.courseId,
+        userId,
+      },
+    });
+
+    // console.log("Found Course:", ownCourse);
+
+    if (!ownCourse) {
+      return new NextResponse("Unauthorized", { status: 401 });
+    }
+
+    const chapter = await db.chapter.findUnique({
+      where: {
+        id: params.chapterId,
+        courseId: params.courseId,
+      },
+    });
+
+    // console.log("Found Chapter:", chapter);
+
+    if (!chapter) {
+      return new NextResponse("Not Found", { status: 404 });
+    }
+
+    // Delete Mux asset if video URL exists
+    if (chapter.videoUrl) {
+      const existingMuxData = await db.muxData.findFirst({
+        where: {
+          chapterId: params.chapterId,
+        },
+      });
+
+      // console.log("Existing Mux Data:", existingMuxData);
+
+      if (existingMuxData) {
+        console.log("Deleting Mux Asset:", existingMuxData.assetId);
+        await muxClient.video.assets.delete(existingMuxData.assetId); // Use 'delete' instead of 'del'
+        // console.log("Deleted Mux Asset");
+
+        await db.muxData.delete({
+          where: {
+            id: existingMuxData.id,
+          },
+        });
+        // console.log("Deleted Mux Data Record");
+      }
+    }
+
+    // Delete the chapter
+    const deletedChapter = await db.chapter.delete({
+      where: {
+        id: params.chapterId,
+      },
+    });
+
+    // console.log("Deleted Chapter:", deletedChapter);
+
+    // If no published chapters remain, unpublish the course
+    const publishedChaptersInCourse = await db.chapter.findMany({
+      where: {
+        courseId: params.courseId,
+        isPublished: true,
+      },
+    });
+
+    // console.log("Published Chapters in Course:", publishedChaptersInCourse);
+
+    if (!publishedChaptersInCourse.length) {
+      await db.course.update({
+        where: {
+          id: params.courseId,
+        },
+        data: {
+          isPublished: false,
+        },
+      });
+      // console.log("Unpublished Course");
+    }
+
+    return NextResponse.json(deletedChapter);
+  } catch (error) {
+    console.error("[CHAPTER_ID_DELETE] Error:", error);
+    return new NextResponse("Internal Error", { status: 500 });
+  }
+}
+
+// PATCH Handler
 export async function PATCH(
   req: Request,
   { params }: { params: { courseId: string; chapterId: string } }
@@ -52,26 +152,19 @@ export async function PATCH(
       });
 
       if (existingMuxData) {
-        // Use lowercase 'assets' instead of 'Assets'
-        // console.log("Deleting Mux Asset:", existingMuxData.assetId);
-        await muxClient.video.assets.del(existingMuxData.assetId);
-
+        await muxClient.video.assets.delete(existingMuxData.assetId);
         await db.muxData.delete({
           where: {
             id: existingMuxData.id,
           },
         });
-        // console.log("Deleted Mux Data Record:", existingMuxData.id);
       }
 
-      // Use lowercase 'assets' instead of 'Assets'
-      console.log("Creating New Mux Asset...");
       const asset = await muxClient.video.assets.create({
         input: values.videoUrl,
         playback_policy: "public",
         test: false,
       });
-      // console.log("New Mux Asset Created:", asset);
 
       await db.muxData.create({
         data: {
@@ -80,11 +173,6 @@ export async function PATCH(
           playbackId: asset.playback_ids?.[0]?.id,
         },
       });
-      // console.log("Saved New Mux Data to Database:", {
-      //   chapterId: params.chapterId,
-      //   assetId: asset.id,
-      //   playbackId: asset.playback_ids?.[0]?.id,
-      // });
     }
 
     return NextResponse.json(chapter);
