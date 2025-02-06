@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import { ClerkProvider } from "@clerk/nextjs";
 import { ToastProvider } from "@/components/providers/toaster-provider";
+import { ConfettiProvider } from "@/components/providers/confetti-provider";
 
 export const metadata: Metadata = {
   title: "LMS Platform",
@@ -17,6 +18,7 @@ export default function RootLayout({
     <ClerkProvider>
       <html lang="en">
         <body className={`antialiased`}>
+          <ConfettiProvider />
           <ToastProvider />
           {children}
         </body>
