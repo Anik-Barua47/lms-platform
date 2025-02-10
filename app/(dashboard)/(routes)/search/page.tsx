@@ -7,6 +7,9 @@ import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import { CoursesList } from "@/components/courses-list";
 
+// Prevent prerendering for this page
+export const dynamic = "force-dynamic";
+
 interface SearchPageProps {
   searchParams: {
     title: string;
@@ -34,7 +37,6 @@ const SearchPage = async ({ searchParams }: SearchPageProps) => {
   return (
     <>
       <div className="px-6 pt-6 md:hidden md:mb-0 block">
-        {/* Wrap SearchInput in a Suspense boundary */}
         <Suspense fallback={<div>Loading...</div>}>
           <SearchInput />
         </Suspense>
